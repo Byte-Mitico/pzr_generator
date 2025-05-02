@@ -1,6 +1,6 @@
 require "TimedActions/ISFixGenerator"
 
-ISFixGeneratorWithScrewdriver = ISFixGenerator:derive("ISFixGeneratorWithScrewdriver")
+local ISFixGeneratorWithScrewdriver = ISFixGenerator:derive("ISFixGeneratorWithScrewdriver")
 
 function ISFixGeneratorWithScrewdriver.getMaxCondition(character)
     return character:getPerkLevel(Perks.Electricity) * 10
