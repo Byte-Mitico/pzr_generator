@@ -1,5 +1,5 @@
-name=Arcmond's Generator Rebalance
-id=arcmond.generator_rebalance
-authors=Arcmond
+name=Byte Mítico - PZR Generator
+id=byte_mitico.pzr_generator
+authors=Byte Mítico
 modversion=0.3.0
 description=This mod rebalances the generator stats to make more sense.

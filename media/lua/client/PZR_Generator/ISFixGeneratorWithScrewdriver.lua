@@ -9,7 +9,7 @@ end
 function ISFixGeneratorWithScrewdriver.validate(generator, character)
     return generator:getObjectIndex() ~= -1 and
             not generator:isActivated() and
-            generator:getCondition() < ISFixGeneratorWithScrewdriver.getMaxCondition(character) and
+            generator:getCondition() < 100 and
             character:getInventory():containsTypeRecurse("Screwdriver") and
             not character:getInventory():getFirstTypeRecurse("Screwdriver"):isBroken() and
             character:getInventory():containsTypeRecurse("ElectronicsScrap")
@@ -25,32 +25,40 @@ function ISFixGeneratorWithScrewdriver:perform()
     local screwdriverItem = self.character:getInventory():getFirstTypeRecurse("Screwdriver")
     if not screwdriverItem or screwdriverItem:isBroken() then return; end
 
-    local scrapItem = self.character:getInventory():getFirstTypeRecurse("ElectronicsScrap");
+    local scrapItem = self.character:getInventory():getFirstTypeRecurse("ElectronicsScrap")
     if not scrapItem then return; end;
 
-    local max_condition = ISFixGeneratorWithScrewdriver.getMaxCondition(self.character)
-    if self.generator:getCondition() >= max_condition then return; end
+    if self.generator:getCondition() == 100 then return; end
 
     self.character:removeFromHands(scrapItem)
     self.character:getInventory():Remove(scrapItem)
 
-    self.generator:setCondition(max_condition)
+    self.generator:setCondition(self.generator:getCondition() + self.character:getPerkLevel(Perks.Electricity) * 5)
     self.character:getXp():AddXP(Perks.Electricity, 5)
 
+    if self.generator:getCondition() < 100 then
+        local newScrapItem = self.character:getInventory():getFirstTypeRecurse("ElectronicsScrap")
+        if newScrapItem then
+            ISInventoryPaneContextMenu.transferIfNeeded(self.character, scrapItem)
+            ISTimedActionQueue.add(ISFixGeneratorWithScrewdriver:new(self.character, self.generator, 500))
+        end
+    end
+
     -- needed to remove from queue / start next.
-    ISBaseTimedAction.perform(self);
+    ISBaseTimedAction.perform(self)
 end
 
 -- Extends the ISWorldObjectContextMenu.onFixGenerator function to check for Screwdriver
 function ISFixGeneratorWithScrewdriver.onFixGeneratorWithScrewdriver(worldobjects, generator, character)
     if luautils.walkAdj(character, generator:getSquare()) then
         local screwdriverItem = character:getInventory():getFirstTagRecurse("Screwdriver")
-        local scrapItem = character:getInventory():getFirstTypeRecurse("ElectronicsScrap");
+        local scrapItem = character:getInventory():getFirstTypeRecurse("ElectronicsScrap")
         if screwdriverItem and scrapItem then
-            ISInventoryPaneContextMenu.transferIfNeeded(character, screwdriverItem);
-            ISInventoryPaneContextMenu.transferIfNeeded(character, scrapItem);
+            ISInventoryPaneContextMenu.transferIfNeeded(character, screwdriverItem)
+            ISInventoryPaneContextMenu.transferIfNeeded(character, scrapItem)
+            ISTimedActionQueue.add(ISEquipWeaponAction:new(character, screwdriverItem, 50, true, false))
             -- Create the action
-            ISTimedActionQueue.add(ISFixGeneratorWithScrewdriver:new(character, generator, 500));
+            ISTimedActionQueue.add(ISFixGeneratorWithScrewdriver:new(character, generator, 500))
         end;
     end
 end
@@ -74,7 +82,7 @@ function ISFixGeneratorWithScrewdriver.onFillWorldObjectContextMenu(player, cont
 
     -- Check if condition is less than max condition
     local character = getSpecificPlayer(player);
-    if generator:getCondition() >= ISFixGeneratorWithScrewdriver.getMaxCondition(character) then return; end
+    if generator:getCondition() == 100 then return; end
     
     -- Add the new Fix Generator option
     local option = context:addOption(getText("ContextMenu_GeneratorFix"), worldobjects, ISFixGeneratorWithScrewdriver.onFixGeneratorWithScrewdriver, generator, character)
@@ -93,6 +101,7 @@ function ISFixGeneratorWithScrewdriver.onFillWorldObjectContextMenu(player, cont
             screwdriverIsBroken = true
         end
     end
+    -- If the player doesn't have the required items, show a tooltip
     if not containsElectronics or not containsScrewdriver or screwdriverIsBroken then
         local tooltip = ISWorldObjectContextMenu.addToolTip()
         option.notAvailable = true
