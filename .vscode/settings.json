@@ -1,0 +1,15 @@
+{
+  "Lua.diagnostics.globals": [
+    "ISFixGenerator",
+    "Perks",
+    "ISBaseTimedAction",
+    "luautils",
+    "ISInventoryPaneContextMenu",
+    "ISTimedActionQueue",
+    "getText",
+    "getSpecificPlayer",
+    "ISWorldObjectContextMenu",
+    "Events",
+    "ISEquipWeaponAction"
+  ]
+}
