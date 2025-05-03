@@ -1,0 +1,6 @@
+version=1
+id=3475345113
+title=Byte Mitico - PZR Generator
+description=This mod rebalances the generator stats to make more sense.
+tags=Build 41;Balance
+visibility=public
