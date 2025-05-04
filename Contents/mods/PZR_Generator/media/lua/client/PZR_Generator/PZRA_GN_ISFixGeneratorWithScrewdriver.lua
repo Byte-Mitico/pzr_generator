@@ -33,7 +33,7 @@ function ISFixGeneratorWithScrewdriver:perform()
     self.character:removeFromHands(scrapItem)
     self.character:getInventory():Remove(scrapItem)
 
-    self.generator:setCondition(self.generator:getCondition() + self.character:getPerkLevel(Perks.Electricity) * 5)
+    self.generator:setCondition(self.generator:getCondition() + 5 + self.character:getPerkLevel(Perks.Electricity) * 5)
     self.character:getXp():AddXP(Perks.Electricity, 5)
 
     if self.generator:getCondition() < 100 then
